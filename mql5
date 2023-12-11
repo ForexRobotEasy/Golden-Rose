@@ -1,0 +1,119 @@
+
+//+------------------------------------------------------------------+
+//|                                                         Golden Rose |
+//|                                      Copyright 2022, Forex Robot Easy Team |
+//|                                              https://www.forexroboteasy.com |
+//+------------------------------------------------------------------+
+#property strict
+
+// Strategy parameters
+input int StrategyIndex = 0; // Selected strategy index (0-8)
+input double StopLoss = 100.0; // Stop loss in pips
+input double TakeProfit = 200.0; // Take profit in pips
+input bool OnlyOneTradeAtTime = false; // Only allow one trade at a time
+input bool FixedLot = true; // Use fixed lot size
+input double LotSize = 0.1; // Fixed lot size
+input bool AutoLot = false; // Use auto lot size
+
+// Sales management parameters
+datetime startDate = D'2022.01.01'; // Start date of sales
+int weeksPassed = MathFloor((TimeCurrent() - startDate) / (7 * 24 * 60 * 60)); // Number of weeks passed
+double price = 100.0 + weeksPassed * 50.0; // Price increment every week
+
+//+------------------------------------------------------------------+
+//| Expert initialization function                                   |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+   // Print current price
+   Print('Current price: $', price);
+
+   // Load strategies
+   LoadStrategies();
+
+   return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Expert deinitialization function                                 |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+   // Unload strategies
+   UnloadStrategies();
+}
+
+//+------------------------------------------------------------------+
+//| Expert tick function                                             |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+   // Check if there is an open position
+   if (PositionsTotal() > 0)
+      return;
+
+   // Check if OnlyOneTradeAtTime mode is activated
+   if (OnlyOneTradeAtTime && PositionsTotal() >= 1)
+      return;
+
+   // Check if AutoLot mode is activated
+   if (AutoLot)
+   {
+      // Calculate lot size based on account balance
+      double accountBalance = AccountBalance();
+      double freeMargin = AccountFreeMargin();
+      double lotSize = AccountFreeMarginCheck(Symbol(), OP_BUY, LotSize * MarketInfo(Symbol(), MODE_LOTSIZE), Ask, StopLoss, accountBalance, freeMargin);
+      if (lotSize <= 0.0)
+         return; // Not enough free margin
+   }
+   else
+   {
+      // Check if FixedLot mode is activated
+      if (FixedLot && LotSize <= 0.0)
+         return; // Invalid lot size
+   }
+
+   // Open new trade based on selected strategy
+   int result = OpenTrade(StrategyIndex);
+   if (result == -1)
+      Print('Failed to open trade based on strategy ', StrategyIndex);
+   else
+      Print('Trade opened based on strategy ', StrategyIndex);
+}
+
+//+------------------------------------------------------------------+
+//| Load strategies                                                  |
+//+------------------------------------------------------------------+
+void LoadStrategies()
+{
+   // Implement code to load strategies
+   // ...
+}
+
+//+------------------------------------------------------------------+
+//| Unload strategies                                                |
+//+------------------------------------------------------------------+
+void UnloadStrategies()
+{
+   // Implement code to unload strategies
+   // ...
+}
+
+//+------------------------------------------------------------------+
+//| Open trade based on strategy                                      |
+//+------------------------------------------------------------------+
+int OpenTrade(const int strategyIndex)
+{
+   // Implement code to open trade based on strategy
+   // ...
+   return(0); // Successful trade opening
+}
+
+//+------------------------------------------------------------------+
+//| Expert start function                                            |
+//+------------------------------------------------------------------+
+void OnStart()
+{
+   // Implement code for expert start
+   // ...
+}
